@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⛏️🧂 Соляная шахта: Испытание безопасностью 🚨</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    min-height: 100vh;
+    background: #12121f;
+    color: #e8e8e8;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 20px;
+    overflow-x: hidden;
+    position: relative;
+  }
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 15% 85%, rgba(255, 180, 50, 0.10) 0%, transparent 55%),
+      radial-gradient(ellipse at 85% 15%, rgba(100, 200, 255, 0.07) 0%, transparent 55%),
+      radial-gradient(ellipse at 50% 50%, rgba(200, 220, 255, 0.03) 0%, transparent 70%),
+      repeating-linear-gradient(45deg, #0d0d17 0px, #0d0d17 40px, #12121f 40px, #12121f 80px);
+    z-index: -3;
+  }
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      radial-gradient(circle at 8% 25%, rgba(255,255,255,0.04) 1.5px, transparent 1.5px),
+      radial-gradient(circle at 72% 55%, rgba(255,255,255,0.03) 1px, transparent 1px),
+      radial-gradient(circle at 35% 88%, rgba(255,255,255,0.04) 1px, transparent 1px),
+      radial-gradient(circle at 90% 70%, rgba(255,255,255,0.02) 2px, transparent 2px);
+    background-size: 120px 120px, 200px 200px, 150px 150px, 250px 250px;
+    z-index: -2;
+    pointer-events: none;
+  }
+  .lamp {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 55px;
+    background: linear-gradient(#444, #666);
+    z-index: 5;
+  }
+  .lamp::after {
+    content: '💡';
+    position: absolute;
+    bottom: -22px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 30px;
+    filter: drop-shadow(0 0 25px rgba(255,220,100,0.9));
+    animation: flicker 3s infinite;
+  }
+  @keyframes flicker {
+    0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); }
+    50% { opacity: 0.65; transform: translateX(-50%) scale(0.92); }
+  }
+  .container {
+    width: 100%;
+    max-width: 820px;
+    background: rgba(18, 22, 38, 0.94);
+    border: 1px solid rgba(255, 200, 80, 0.28);
+    border-radius: 20px;
+    padding: 38px 32px;
+    box-shadow: 0 0 80px rgba(0,0,0,0.7), inset 0 0 50px rgba(0,0,0,0.35);
+    backdrop-filter: blur(8px);
+    position: relative;
+    z-index: 2;
+    margin-top: 10px;
+  }
+  h1 {
+    text-align: center;
+    font-size: 1.7rem;
+    color: #ffcc66;
+    margin-bottom: 6px;
+    text-shadow: 0 0 20px rgba(255,204,102,0.5);
+    letter-spacing: 0.5px;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8899aa;
+    font-size: 0.92rem;
+    margin-bottom: 26px;
+  }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.45s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .memo {
+    background: rgba(255, 200, 80, 0.06);
+    border-left: 4px solid #ffcc66;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 12px;
+    font-size: 0.86rem;
+    line-height: 1.55;
+    color: #ccd6e0;
+  }
+  .memo h3 { color: #ffcc66; margin-bottom: 6px; font-size: 0.93rem; }
+  .memo p { margin: 3px 0; }
+  .memo.vent { border-left-color: #64c8ff; background: rgba(100,200,255,0.06); }
+  .memo.vent h3 { color: #64c8ff; }
+  .memo.tech { border-left-color: #66ffaa; background: rgba(100,255,170,0.06); }
+  .memo.tech h3 { color: #66ffaa; }
+  .memo.comm { border-left-color: #cc88ff; background: rgba(200,136,255,0.06); }
+  .memo.comm h3 { color: #cc88ff; }
+  .memo.general { border-left-color: #66ffaa; background: rgba(100,255,170,0.08); }
+  .story {
+    background: rgba(100, 200, 255, 0.07);
+    border-left: 4px solid #64c8ff;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin: 18px 0 22px;
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: #b8c8d8;
+  }
+  .story strong { color: #64c8ff; }
+  button {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1a1a2e;
+    background: linear-gradient(135deg, #ffcc66, #ffaa33);
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    margin-top: 10px;
+    font-family: inherit;
+    letter-spacing: 0.3px;
+  }
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 30px rgba(255, 180, 50, 0.4);
+  }
+  button:active { transform: translateY(0); }
+  .progress-bar-wrap {
+    background: rgba(255,255,255,0.08);
+    border-radius: 20px;
+    height: 12px;
+    margin-bottom: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .progress-bar {
+    height: 100%;
+    width: 0%;
+    background: linear-gradient(90deg, #ffcc66, #66ffaa);
+    border-radius: 20px;
+    transition: width 0.4s ease;
+  }
+  .progress-text {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #8899aa;
+    margin-bottom: 22px;
+    font-weight: 600;
+  }
+  .question-text {
+    font-size: 1.08rem;
+    color: #f0f4f8;
+    margin-bottom: 22px;
+    line-height: 1.55;
+    min-height: 55px;
+    font-weight: 500;
+  }
+  .options { display: flex; flex-direction: column; gap: 11px; }
+  .option-btn {
+    text-align: left;
+    padding: 15px 18px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 11px;
+    color: #dde6ee;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: 400;
+    margin: 0;
+    line-height: 1.45;
+    font-family: inherit;
+  }
+  .option-btn:hover {
+    background: rgba(255, 200, 80, 0.13);
+    border-color: rgba(255, 200, 80, 0.45);
+    transform: translateX(5px);
+  }
+  .option-btn.correct {
+    background: rgba(80, 220, 120, 0.28);
+    border-color: #50dc78;
+    color: #b8ffcc;
+    font-weight: 600;
+  }
+  .option-btn.wrong {
+    background: rgba(255, 80, 80, 0.25);
+    border-color: #ff5050;
+    color: #ffc0c0;
+  }
+  .option-btn:disabled { cursor: default; transform: none; }
+  .feedback {
+    margin-top: 17px;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 0.92rem;
+    line-height: 1.5;
+    display: none;
+  }
+  .feedback.show { display: block; animation: fadeIn 0.3s; }
+  .feedback.ok { background: rgba(80,220,120,0.14); border-left: 4px solid #50dc78; color: #b8ffcc; }
+  .feedback.bad { background: rgba(255,80,80,0.14); border-left: 4px solid #ff5050; color: #ffc0c0; }
+  .next-btn { display: none; margin-top: 17px; }
+  .next-btn.show { display: block; }
+  .result-emoji { font-size: 4.5rem; text-align: center; margin: 10px 0 18px; }
+  .result-title { text-align: center; font-size: 1.45rem; margin-bottom: 12px; font-weight: 700; }
+  .result-score {
+    text-align: center;
+    font-size: 2.4rem;
+    font-weight: 800;
+    color: #ffcc66;
+    margin-bottom: 10px;
+    text-shadow: 0 0 20px rgba(255,204,102,0.4);
+  }
+  .result-msg {
+    text-align: center;
+    font-size: 0.95rem;
+    color: #b8c8d8;
+    line-height: 1.65;
+    margin-bottom: 24px;
+  }
+  .pass-line {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #8899aa;
+    margin-bottom: 8px;
+    font-weight: 600;
+  }
+  .repeat-block {
+    background: rgba(255, 180, 50, 0.07);
+    border: 1px solid rgba(255, 200, 80, 0.25);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin: 22px 0 18px;
+    text-align: left;
+  }
+  .repeat-block h3 {
+    color: #ffcc66;
+    font-size: 1.05rem;
+    margin-bottom: 12px;
+    text-align: center;
+  }
+  .repeat-block ul { list-style: none; padding: 0; }
+  .repeat-block li {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #dde6ee;
+  }
+  .repeat-block li:last-child { border-bottom: none; }
+  .repeat-block .topic-name {
+    font-weight: 700;
+    color: #ffcc66;
+    display: block;
+    margin-bottom: 3px;
+  }
+  .repeat-block .topic-hint { font-size: 0.83rem; color: #99aabb; }
+  .repeat-block .all-good {
+    text-align: center;
+    color: #66ffaa;
+    font-size: 0.95rem;
+    line-height: 1.6;
+    padding: 8px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="lamp"></div>
+
+<div class="container">
+
+  <div id="screen-start" class="screen active">
+    <h1>⛏️🧂 Соляная шахта 🧂⛏️</h1>
+    <div class="subtitle">⚡🚨 Интерактивное испытание по безопасности 🚨⚡</div>
+
+    <div class="story">
+      <strong>📖🎬 Твоя история:</strong><br>
+      Ты — молодой горный инженер 👷‍♂️ на соляной шахте «Северная-Глубинная» 🏔️⛏️. 
+      Датчики АГК 📡⚠️ показывают колебания. 
+      Чтобы провести команду ⛑️👥 через смену и получить допуск 📜✅, докажи, что знаешь правила безопасности 🛡️.
+      <br><br>
+      <em style="color:#ffcc66;">🎯 30 испытаний 🧠. Нужно 28 из 30 (93%) ✅ — и смена пройдёт без происшествий! 🎉</em>
+    </div>
+
+    <div class="memo">
+      <h3>💡🔦 Освещение 📚</h3>
+      <p>🔹 Камеры выше 10 м — минимум 220 В ⚡.</p>
+      <p>🔹 Лампы без защитной сетки запрещены 🚫💡.</p>
+      <p>🔹 Кабель — на высоте 2,5 м 📐.</p>
+      <p>🔹 Маркировка взрывозащиты — 1ExdI M1 🛡️💡.</p>
+      <p>🔹 Нормы: забои 5–10 лк 📏, пути 15 лк 🚛, диспетчерская 30–100 лк 🏥.</p>
+    </div>
+
+    <div class="memo vent">
+      <h3>🌬️💨 Вентиляция 📚</h3>
+      <p>🔹 При 15 м/с — интенсивное пылеобразование 🌫️💨.</p>
+      <p>🔹 В глухом забое — вентилятор ВМ 🌀.</p>
+      <p>🔹 АГК: метан 🔥, CO ☠️, кислород 🫁, пыль 🌫️, расход 💨.</p>
+      <p>🔹 Резерв и реверсирование 🔄🔁 (при 500 — 2 мин ⏱️).</p>
+      <p>🔹 Рассолы 💧 и затопление 🌊 — особый контроль 🧂.</p>
+    </div>
+
+    <div class="memo tech">
+      <h3>🚜⚙️ Эксплуатация техники 📚</h3>
+      <p>🔹 Задний ход — не допускать людей 🚫👷.</p>
+      <p>🔹 Полный отказ контура тормозов — критичен 🛑🚜.</p>
+      <p>🔹 Перед запуском дизеля — проветрить 15 мин 💨⏱️.</p>
+      <p>🔹 ППР 🔧📅 и только квалифицированный персонал 👷✅.</p>
+      <p>🔹 Анкерный шаг — не более 1 м 🧱🔩.</p>
+    </div>
+
+    <div class="memo comm">
+      <h3>📡📶 Коммуникации 📚</h3>
+      <p>🔹 Фонари проверяют перед спуском 🔋🔦.</p>
+      <p>🔹 Обрыв провода — непрерывный сигнал 🔊📡.</p>
+      <p>🔹 Под конвейером кабели запрещены ⛔🔌.</p>
+      <p>🔹 GPS/GSM не работают 📵 — UWB 📶 и ретрансляторы 🔁.</p>
+      <p>🔹 Потеря сигнала — резервная частота 🔄📻.</p>
+    </div>
+
+    <div class="memo general">
+      <h3>🛡️✅ Общие правила безопасности 🧠📜</h3>
+      <p>🔹 Перед сменой — инструктаж и проверка знаний 📋🎓.</p>
+      <p>🔹 Только исправное оборудование и инструмент 🔧✅.</p>
+      <p>🔹 СИЗ обязательны: каска ⛑️, самоспасатель 😷, светильник 🔦, спецобувь 🥾.</p>
+      <p>🔹 Запрещено работать в одиночку в опасных зонах 🚫👤.</p>
+      <p>🔹 При признаках аварии — немедленно сообщить диспетчеру 📡🚨.</p>
+      <p>🔹 Действовать строго по ПЛА 📜⚠️.</p>
+      <p>🔹 Не допускать курения и открытого огня 🔥🚭.</p>
+      <p>🔹 Соблюдать маршруты выхода и знать запасные 🚪🗺️.</p>
+      <p>🔹 Проверять загазованность перед входом в забой 🌫️📡.</p>
+      <p>🔹 Не загромождать проходы и вентиляционные двери 🚪📦.</p>
+      <p>🔹 О любых неисправностях сообщать мастеру 🔧📢.</p>
+      <p>🔹 Соблюдать дисциплину и не отвлекать машинистов 🚜🤐.</p>
+      <p>🔹 Знать сигналы аварийного оповещения 🔔🚨.</p>
+      <p>🔹 Регулярно проходить медосмотры 🏥✅.</p>
+      <p>🔹 Безопасность — личная ответственность каждого 👷🛡️.</p>
+    </div>
+
+    <button onclick="startGame()">🚀⛏️ Начать смену 🧂🎮</button>
+  </div>
+
+  <div id="screen-quiz" class="screen">
+    <div class="progress-bar-wrap">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="progress-text" id="progressText">📋 Вопрос 1 из 30 ⛏️</div>
+
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Далее ➡️</button>
+  </div>
+
+  <div id="screen-result" class="screen">
+    <div class="result-emoji" id="resultEmoji">🏆</div>
+    <div class="result-title" id="resultTitle"></div>
+    <div class="result-score" id="resultScore"></div>
+    <div class="result-msg" id="resultMsg"></div>
+    <div class="pass-line">🎯 Проходной балл: 28 из 30 (93%) ✅</div>
+    <div id="repeatBlock" class="repeat-block" style="display:none;"></div>
+    <button onclick="restartGame()">🔄⛏️ Пройти заново 🧂🎮</button>
+  </div>
+
+</div>
+
+<script>
+const TOPICS = {
+  light: { name: '💡 Освещение', hint: 'Повтори: 220 В в камерах выше 10 м, высота кабеля 2,5 м, маркировка 1ExdI M1, нормы лк.' },
+  vent: { name: '🌬️ Вентиляция', hint: 'Повтори: 15 м/с и пыль, вентилятор ВМ, АГК, реверсирование 2 мин, рассолы и затопление.' },
+  tech: { name: '🚜 Эксплуатация техники', hint: 'Повтори: зона хода, контур тормозов, проветривание 15 мин, ППР, анкерный шаг 1 м.' },
+  comm: { name: '📡 Коммуникации', hint: 'Повтори: проверка фонарей, сигнал при обрыве, запрет под конвейером, UWB, резервная частота.' },
+  general: { name: '🛡️ Общие правила', hint: 'Повтори: инструктаж, СИЗ, ПЛА, сигналы оповещения, личная ответственность.' }
+};
+
+const QUESTIONS = [
+  { q: "💡⚡ Какое минимальное напряжение цепей освещения допускается в соляных камерах высотой более десяти метров? 📏", a: [
+    "🔴 127 В", "🟡 220 В", "🟢 380 В", "🔵 660 В", "🟣 1000 В"
+  ], correct: 1, topic: 'light' },
+  { q: "🌀📐 Какое аэродинамическое сопротивление создаёт один ряд целика шириной десять метров? 🧱", a: [
+    "📉 240 единиц", "📊 2400 единиц", "📈 6000 единиц", "📏 15000 единиц", "📐 60000 единиц"
+  ], correct: 1, topic: 'vent' },
+  { q: "🧱🔩 Каков регламентированный шаг установки анкерной крепи с полимерным закрепителем? 📏", a: [
+    "📉 Не более 0,5 м", "📊 Не более 0,7 м", "📈 Не более 1 м", "📏 Не более 1,5 м", "📐 Не более 2 м"
+  ], correct: 2, topic: 'tech' },
+  { q: "🚜⚙️ Как меняется частота вращения ротора комбайна при увеличении крепости массива? 🪨", a: [
+    "📈 Увеличивается на 20%", "📉 Снижается на 30%", "➡️ Остаётся неизменной", "🛑 Машина останавливается", "📈 Увеличивается на 50%"
+  ], correct: 1, topic: 'tech' },
+  { q: "🔥🧱 Каков минимальный предел огнестойкости изоляционных перемычек в соляных шахтах? ⏱️", a: [
+    "⏱️ 15 минут", "⏱️ 30 минут", "⏱️ 45 минут", "⏱️ 60 минут", "⏱️ 90 минут"
+  ], correct: 3, topic: 'general' },
+  { q: "🌬️💨 При какой скорости воздуха начинается сдувание соляных отложений со стенок? 🧂", a: [
+    "💨 0,2 м/с", "💨 0,5 м/с", "💨 1,5 м/с", "💨 3,0 м/с", "💨 5,0 м/с"
+  ], correct: 2, topic: 'vent' },
+  { q: "📡🚜 Сколько датчиков газа нужно на дизельном самоходном экипаже в блоке? 🔥", a: [
+    "1 совмещённый", "2 датчика", "3 датчика", "4 по углам", "5 на борту"
+  ], correct: 2, topic: 'comm' },
+  { q: "🛠️⏳ Каков расчётный срок службы стальных труб без катодной защиты? 📅", a: [
+    "📅 ~1 год", "📅 ~3 года", "📅 ~5 лет", "📅 ~10 лет", "📅 ~25 лет"
+  ], correct: 2, topic: 'general' },
+  { q: "❄️🚂 Что делает система управления при обнаружении обледенения рельсов? 🛤️", a: [
+    "🔊 Подаёт сигнал", "🛑 Блокирует движение", "🔥 Активирует электроподогрев", "🔄 Переводит стрелку", "📉 Снижает скорость"
+  ], correct: 2, topic: 'tech' },
+  { q: "🔄🌬️ Какое минимальное время реверсирования струи при объёме 500? ⏱️", a: [
+    "⏱️ ≤10 секунд", "⏱️ ≤30 секунд", "⏱️ ≤2 минут", "⏱️ ≤5 минут", "⏱️ ≤10 минут"
+  ], correct: 2, topic: 'vent' },
+  { q: "🛞📐 При каком сцеплении шин движение на уклон свыше 5° невозможно? 🚜", a: [
+    "📊 0,9", "📊 0,7", "📊 0,4", "📊 0,2", "📊 0,1"
+  ], correct: 2, topic: 'tech' },
+  { q: "⚡🔌 Как прокладывают искробезопасные цепи рядом с кабелями на 6 кВ? ⚠️", a: [
+    "⛔ Запрещено", "📏 На 0,5 м", "📏 На 1 м", "🔧 В разных трубах", "🛡️ Только в броне"
+  ], correct: 1, topic: 'comm' },
+  { q: "🚪💨 Какое давление воздуха нужно в тамбур-шлюзах у ствола? 📊", a: [
+    "📉 ≥5 Па", "📊 ≥20 Па", "📈 ≥50 Па", "📏 ≥100 Па", "📐 ≥200 Па"
+  ], correct: 2, topic: 'vent' },
+  { q: "⚙️🚜 Какой износ зубьев звездочки запрещает дальнейшую работу комбайна? 🛑", a: [
+    "📊 10%", "📊 25%", "📊 50%", "📉 До основания", "📏 Не регламентирован"
+  ], correct: 3, topic: 'tech' },
+  { q: "💧🧂 Как меняется расход воды орошения при переходе в зону сильвинита? 🚜", a: [
+    "📈 +50%", "📉 Уменьшается для шлама", "⛔ Выключается", "➡️ Остаётся", "💨 Только воздух"
+  ], correct: 1, topic: 'tech' },
+  { q: "📍⚡ Сколько независимых источников питания нужно для системы позиционирования? 🔋", a: [
+    "1 основной", "2 разных", "3 разных", "4 разных", "1 с дублёром"
+  ], correct: 1, topic: 'comm' },
+  { q: "📏🌀 Каков минимальный радиус поворота жёсткого вентиляционного трубопровода? 🛠️", a: [
+    "1 диаметр", "2 диаметра", "3 диаметра", "5 диаметров", "Радиус не важен"
+  ], correct: 2, topic: 'vent' },
+  { q: "☠️📡 При какой концентрации хлороводорода срабатывает автоматическая защита? 🚨", a: [
+    "2 мг", "5 мг", "10 мг", "20 мг", "50 мг"
+  ], correct: 2, topic: 'comm' },
+  { q: "🧱📅 Как часто сканируют целостность целиков в зоне тектонического влияния? 🪨", a: [
+    "Раз в 5 лет", "Раз в год", "Раз в квартал", "Раз в месяц", "Только при трещинах"
+  ], correct: 2, topic: 'general' },
+  { q: "📐🚜 Каков допустимый люфт в шарнире стрелы комбайна с лазером? 🔦", a: [
+    "📏 ≤1 мм", "📏 ≤3 мм", "📏 ≤5 мм", "📏 ≤10 мм", "📏 ≤20 мм"
+  ], correct: 1, topic: 'tech' },
+  { q: "🌀⚙️ Какое минимальное число оборотов вентилятора нужно для 30 метров? 📏", a: [
+    "🌀 1000 об/мин", "🌀 1500 об/мин", "🌀 2500 об/мин", "🌀 3000 об/мин", "📊 Только расход"
+  ], correct: 2, topic: 'vent' },
+  { q: "🛢️🔥 Какую смазку используют для узлов в горячих рассолах выше 40°C? 🌡️", a: [
+    "🛢️ Литол", "🛢️ Сульфонат кальция", "✏️ Сухой графит", "🛢️ Машинное масло", "⛔ Запрещена"
+  ], correct: 1, topic: 'tech' },
+  { q: "📶📡 Какова минимальная пропускная способность канала аварийного оповещения? 💾", a: [
+    "64 кбит/с", "128 кбит/с", "256 кбит/с", "1 Мбит/с", "10 Мбит/с"
+  ], correct: 2, topic: 'comm' },
+  { q: "🔥🚜 При каком угле падения пласта запрещена техника без пожаротушения? 📐", a: [
+    "📐 >5°", "📐 >10°", "📐 >15°", "📐 >18°", "📐 >25°"
+  ], correct: 4, topic: 'general' },
+  { q: "⚡🔌 Какое сопротивление заземляющего контура подстанции допустимо в шахте? 📊", a: [
+    "📉 ≤2 Ом", "📊 ≤10 Ом", "📈 ≤25 Ом", "📏 ≤40 Ом", "⛔ Не нужно"
+  ], correct: 0, topic: 'general' },
+  { q: "💡📊 Каков допустимый коэффициент пульсации света для работы маркшейдера? 📐", a: [
+    "📊 5%", "📊 10%", "📊 15%", "📊 20%", "📊 50%"
+  ], correct: 1, topic: 'light' },
+  { q: "📻🧂 Какое требование предъявляется к частоте связи в условиях соляного массива? 📡", a: [
+    "📉 Низкая частота", "📈 Высокая частота", "🔦 Только оптика", "🛰️ Только спутник", "➡️ Не важна"
+  ], correct: 0, topic: 'comm' },
+  { q: "⚙️🚜 При каком износе зубьев рейки подачи комбайна запрещена работа? 🛑", a: [
+    "📊 5%", "📊 10%", "📊 20%", "📊 30%", "📊 50%"
+  ], correct: 1, topic: 'tech' },
+  { q: "💨🚜 Какое минимальное количество воздуха нужно на один дизель в тупике? 🌬️", a: [
+    "💨 3 м³/мин", "💨 5 м³/мин", "💨 10 м³/мин", "💨 15 м³/мин", "💨 20 м³/мин"
+  ], correct: 1, topic: 'vent' },
+  { q: "💡🏗️ Какое требование к освещению бункера перегрузки соляного комбайна? 🚜", a: [
+    "🔴 Красное", "🚨 Аварийное", "💡 100 лк", "💡 200 лк", "💡 500 лк"
+  ], correct: 4, topic: 'light' }
+];
+
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let gameQuestions = [];
+let currentIndex = 0;
+let score = 0;
+let answered = false;
+let wrongTopics = [];
+
+const PASS_SCORE = 28;
+const TOTAL = 30;
+
+const screenStart = document.getElementById('screen-start');
+const screenQuiz = document.getElementById('screen-quiz');
+const screenResult = document.getElementById('screen-result');
+const progressBar = document.getElementById('progressBar');
+const progressText = document.getElementById('progressText');
+const questionText = document.getElementById('questionText');
+const optionsContainer = document.getElementById('optionsContainer');
+const feedback = document.getElementById('feedback');
+const nextBtn = document.getElementById('nextBtn');
+const resultEmoji = document.getElementById('resultEmoji');
+const resultTitle = document.getElementById('resultTitle');
+const resultScore = document.getElementById('resultScore');
+const resultMsg = document.getElementById('resultMsg');
+const repeatBlock = document.getElementById('repeatBlock');
+
+function startGame() {
+  gameQuestions = shuffle(QUESTIONS).map(q => {
+    const correctText = q.a[q.correct];
+    const shuffledAnswers = shuffle(q.a);
+    return {
+      q: q.q,
+      a: shuffledAnswers,
+      correct: shuffledAnswers.indexOf(correctText),
+      topic: q.topic
+    };
+  });
+
+  currentIndex = 0;
+  score = 0;
+  answered = false;
+  wrongTopics = [];
+
+  screenStart.classList.remove('active');
+  screenResult.classList.remove('active');
+  screenQuiz.classList.add('active');
+
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (currentIndex >= TOTAL) {
+    showResult();
+    return;
+  }
+
+  answered = false;
+  const q = gameQuestions[currentIndex];
+
+  progressBar.style.width = (currentIndex / TOTAL * 100) + '%';
+  progressText.textContent = `📋 Вопрос ${currentIndex + 1} из ${TOTAL} ⛏️`;
+  questionText.textContent = `${currentIndex + 1}. ${q.q}`;
+
+  optionsContainer.innerHTML = '';
+  feedback.className = 'feedback';
+  feedback.textContent = '';
+  nextBtn.classList.remove('show');
+
+  q.a.forEach((answer, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = answer;
+    btn.onclick = () => selectAnswer(idx, btn);
+    optionsContainer.appendChild(btn);
+  });
+}
+
+function selectAnswer(idx, btn) {
+  if (answered) return;
+  answered = true;
+
+  const q = gameQuestions[currentIndex];
+  const allButtons = optionsContainer.querySelectorAll('.option-btn');
+  allButtons.forEach(b => b.disabled = true);
+
+  if (idx === q.correct) {
+    btn.classList.add('correct');
+    score++;
+    feedback.className = 'feedback ok show';
+    feedback.textContent = '✅ Верно! Отличная работа! 🎉👏';
+  } else {
+    btn.classList.add('wrong');
+    allButtons[q.correct].classList.add('correct');
+    feedback.className = 'feedback bad show';
+    feedback.textContent = `❌ Неверно. Правильный ответ: «${q.a[q.correct]}» 😔`;
+    if (!wrongTopics.includes(q.topic)) {
+      wrongTopics.push(q.topic);
+    }
+  }
+
+  nextBtn.classList.add('show');
+  nextBtn.textContent = (currentIndex === TOTAL - 1) ? '🏁 Показать результат 🏆' : 'Далее ➡️';
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= TOTAL) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  screenQuiz.classList.remove('active');
+  screenResult.classList.add('active');
+
+  progressBar.style.width = '100%';
+
+  const passed = score >= PASS_SCORE;
+  const percent = Math.round(score / TOTAL * 100);
+
+  resultScore.textContent = `⭐ ${score} / ${TOTAL} ⭐`;
+
+  if (passed) {
+    resultEmoji.textContent = '🏆🎉⛏️🧂';
+    resultTitle.textContent = '✅ Смена пройдена безопасно! 🎊';
+    resultTitle.style.color = '#66ffaa';
+    resultMsg.innerHTML = `Ты набрал <strong>${percent}%</strong> и успешно прошёл испытание! 🎊👏<br><br>
+      Благодаря твоим знаниям команда вышла на поверхность без происшествий 👷‍♂️⛑️. 
+      Датчики в норме 📡, вентиляция работает 🌬️, связь стабильна 📶. 
+      <br><br><em style="color:#ffcc66;">📜 Допуск к работе получен! ⛏️🧂🎉</em>`;
+  } else {
+    resultEmoji.textContent = '⚠️😟🚨';
+    resultTitle.textContent = '⛔ Смена приостановлена 😔';
+    resultTitle.style.color = '#ff8080';
+    resultMsg.innerHTML = `Ты набрал <strong>${percent}%</strong>, но для допуска нужно минимум <strong>${PASS_SCORE} из ${TOTAL}</strong> (93%) 😕.<br><br>
+      Повтори памятку по безопасности 📖 и попробуй снова — от твоих знаний зависят жизни людей! 👷‍♂️⛑️💪`;
+  }
+
+  renderRepeatBlock();
+}
+
+function renderRepeatBlock() {
+  if (wrongTopics.length === 0) {
+    repeatBlock.style.display = 'block';
+    repeatBlock.innerHTML = `
+      <h3>🎉 Отлично! Ошибок нет 🏆</h3>
+      <div class="all-good">Ты ответил верно на все вопросы! 👏<br>Повторять ничего не нужно — так держать! 🏆⛏️🧂</div>
+    `;
+    return;
+  }
+
+  repeatBlock.style.display = 'block';
+  let html = '<h3>📚 Что тебе ещё нужно повторить 🧠</h3><ul>';
+  wrongTopics.forEach(topicKey => {
+    const topic = TOPICS[topicKey];
+    if (topic) {
+      html += `<li>
+        <span class="topic-name">${topic.name}</span>
+        <span class="topic-hint">${topic.hint}</span>
+      </li>`;
+    }
+  });
+  html += '</ul>';
+  repeatBlock.innerHTML = html;
+}
+
+function restartGame() {
+  screenResult.classList.remove('active');
+  screenStart.classList.add('active');
+  progressBar.style.width = '0%';
+  repeatBlock.style.display = 'none';
+}
+</script>
+
+</body>
+</html>
